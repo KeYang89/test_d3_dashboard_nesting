@@ -1,0 +1,443 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<!-- load the dashboard css -->
+		<link href="../sbDashboard.css" rel="stylesheet">
+		<!-- load gitter css, dataTables and font-awesome -->
+		<link href="css/gitter/css/jquery.gritter.css" rel="stylesheet"/>
+		<link href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css" rel="stylesheet">
+		<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
+		<link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+		<!-- load jquery library -->
+		<script src="libs/jquery/jquery-1.8.2.js" type="text/javascript"> </script>
+		<!-- load jquery ui library -->
+		<script src="libs/jquery/jquery-ui.js" type="text/javascript"> </script>	
+		<!-- load touch punch library to enable dragging on touch based devices -->
+		<script src="libs/touchpunch/jquery.ui.touch-punch.js" type="text/javascript"> </script>
+		<!-- load gitter notification library -->
+		<script src="libs/gitter/jquery.gritter.js" type="text/javascript"> </script>
+		<!-- load datatables library -->
+		<script src="libs/datatables/jquery.dataTables.js"> </script>
+		<!-- load flotr2 charting library -->
+		<!--[if IE]>
+		<script language="javascript" type="text/javascript" src="libs/flotr2/flotr2.ie.min.js"></script>
+		<![endif]-->
+		<script src="libs/flotr2/flotr2.js" type="text/javascript"> </script>
+ 
+		<!-- load dashboard library -->
+		<script src="../jquery-sbDashboard.js" type="text/javascript"> </script>
+
+		<!-- sample data external script file -->
+		<script src="libs/exampleData.js" type="text/javascript"> </script>
+       <!-- Plotly.js for map and fancy charts -->
+		<script src="js/plotly-latest.min.js"></script>
+
+
+		<!-- example code -->
+		<script type="text/javascript">
+			$(function() {
+
+				// var randomString = "All the charts you see above is static data, quick rendering.";
+				
+				//**********************************************//
+				//dashboard json data
+				//this is the data format that the dashboard framework expects
+				//**********************************************//
+
+				var dashboardJSON = [{
+					widgetTitle : "Bubble Chart Widget",
+					widgetId : "id009",
+					widgetType : "chart",
+					enableRefresh: true,
+					refreshCallBack : function(widgetId){
+						var refreshedData = {
+							data : myExampleData.constructBubbleChartData(),
+							options : myExampleData.bubbleChartOptions
+						};
+						return refreshedData;
+					},
+					widgetContent : {
+						data : myExampleData.bubbleChartData,
+						options : myExampleData.bubbleChartOptions
+					}
+
+				}, 
+				{
+					widgetTitle : "Pie Chart Widget",
+					widgetId : "id001",
+					widgetType : "chart",
+					widgetContent : {
+						data : myExampleData.pieChartData,
+						options : myExampleData.pieChartOptions
+					}
+
+				}, 
+				{
+					widgetTitle : "bar Chart Widget",
+					widgetId : "id002",
+					widgetType : "chart",
+					enableRefresh: true,
+					refreshCallBack : function(widgetId){
+						var refreshedData = {
+							data : myExampleData.constructBarChartData(),
+							options : myExampleData.barChartOptions
+						};
+						return refreshedData;
+					},
+					widgetContent : {
+						data : myExampleData.barChartData,
+						options : myExampleData.barChartOptions
+					}
+
+				}, {
+					widgetTitle : "line Chart Widget",
+					widgetId : "id003",
+					widgetType : "chart",
+					getDataBySelection : true,
+					widgetContent : {
+						data : myExampleData.lineChartData,
+						options : myExampleData.lineChartOptions
+					}
+
+				 }, {
+					widgetTitle : "Table Widget",
+					widgetId : "id3-table",
+					widgetType : "table",
+					enableRefresh : true,
+					refreshCallBack : function(widgetData){
+						return {
+						"aaData" : [myExampleData.constructTableWidgetData(), 
+									myExampleData.constructTableWidgetData(), 
+									myExampleData.constructTableWidgetData(), 
+									myExampleData.constructTableWidgetData(),
+									myExampleData.constructTableWidgetData(),
+									myExampleData.constructTableWidgetData(), 
+									myExampleData.constructTableWidgetData()
+									],
+
+									"aoColumns" : [{
+									"sTitle" : "Engine"
+									}, {
+									"sTitle" : "Browser"
+									}, {
+									"sTitle" : "Platform"
+									}]
+								};
+					},
+					widgetContent : myExampleData.tableWidgetData
+				},  
+				{
+					widgetTitle : "Equipment Type Purchase Locations/Current Cost (non-Google-API)",
+					widgetId : "piechartmap",
+					widgetContent : $("#mapWidgets")
+				}, {
+					widgetTitle : "Equipment Type Purchase Locations/Current Cost (Google-API)",
+					widgetId : "piechartmap",
+					widgetContent : $("#googlemapWidgets")
+				}, 
+				
+
+				];
+
+				//basic initialization example
+				$("#myDashboard").sbDashboard({
+					dashboardData : dashboardJSON
+				});
+                
+			 /* some internal test by ke
+							//table row clicked event example
+							$("#myDashboard").bind("sbDashboardrowclicked", function(e, data) {
+								$.gritter.add({
+									position: 'bottom-left',
+									title : 'Table row clicked',
+									time : 1000,
+									text : 'A table row within a table widget has been clicked, please check the console for additional event data'
+								});
+
+								if (console) {
+									console.log("table row clicked, for widget: " + data.selectedWidgetId);
+								}
+							});
+
+							//plot selected event example
+							$("#myDashboard").bind("sbDashboardplotselected", function(e, data) {
+								$.gritter.add({
+									position: 'bottom-left',
+									title : 'Plot selected',
+									time : 1000,
+									text : 'A plot has been selected within a chart widget, please check the console for additional event data'
+								});
+								if (console) {
+									console.log("chart range selected, for widget: " + data.selectedWidgetId);
+								}
+							});
+							//plot click event example
+							$("#myDashboard").bind("sbDashboardplotclicked", function(e, data) {
+								$.gritter.add({
+									position: 'bottom-left',
+									title : 'Plot Clicked',
+									time : 1000,
+									text : 'A plot has been clicked within a chart widget, please check the console for additional event data'
+								});
+								if (console) {
+									console.log("chart clicked, for widget: " + data.selectedWidgetId);
+								}
+							});
+
+							//widget order changes event example
+							$("#myDashboard").bind("sbDashboardorderchanged", function(e, data) {
+								$.gritter.add({
+									position: 'bottom-left',
+									title : 'Order Changed',
+									time : 4000,
+									text : 'The widgets order has been changed,check the console for the sorted widget definitions array'
+								});
+								if (console) {
+									console.log("Sorted Array");
+									console.log("+++++++++++++++++++++++++");
+									console.log(data.sortedDefinitions);
+									console.log("+++++++++++++++++++++++++");
+								}
+								
+							});
+							//example for adding a text widget
+							$("#btnAddWidget").click(function() {
+								$("#myDashboard").sbDashboard("addWidget", {
+									widgetTitle : "Widget 7",
+									widgetId : "id008",
+									widgetContent : "Lorem ipsum dolor sit amet," + "consectetur adipiscing elit." + "Aenean lacinia mollis condimentum." + "Proin vitae ligula quis ipsum elementum tristique." + "Vestibulum ut sem erat."
+								});
+							});
+
+							//example for adding a table widget
+							$("#btnAddTableWidget").click(function() {
+								$("#myDashboard").sbDashboard("addWidget", {
+									widgetTitle : "Table Widget 2",
+									widgetId : "id007",
+									widgetType : "table",
+									widgetContent : myExampleData.tableWidgetData
+								});
+
+							});
+
+							//example for  deleting a widget
+							$("#btnDeleteWidget").click(function() {
+								$("#myDashboard").sbDashboard("removeWidget", "id007");
+							});
+
+							//example for adding a pie chart widget
+							$("#btnAddPieChartWidget").click(function() {
+
+								$("#myDashboard").sbDashboard("addWidget", {
+									widgetTitle : "Pie Chart 2",
+									widgetId : "id006",
+									widgetType : "chart",
+									widgetContent : {
+										data : myExampleData.pieChartData,
+										options : myExampleData.pieChartOptions
+									}
+								});
+
+							});
+
+							//example for adding a bar chart widget
+							$("#btnAddBarChartWidget").click(function() {
+
+								$("#myDashboard").sbDashboard("addWidget", {
+									widgetTitle : "Bar Chart 2",
+									widgetId : "id005",
+									widgetType : "chart",
+									enableRefresh: true,
+									refreshCallBack : function(widgetId){
+										var refreshedData = {
+											data : myExampleData.constructBarChartData(),
+											options : myExampleData.barChartOptions
+										};
+										return refreshedData;
+									},
+									widgetContent : {
+										data : myExampleData.barChartData,
+										options : myExampleData.barChartOptions
+									}
+								});
+							});
+
+							//example for adding an line chart widget
+							$("#btnAddLineChartWidget").click(function() {
+								$("#myDashboard").sbDashboard("addWidget", {
+									widgetTitle : "Line Chart 2",
+									widgetId : "id004",
+									widgetType : "chart",
+									getDataBySelection : true,
+									widgetContent : {
+										data : myExampleData.lineChartData,
+										options : myExampleData.lineChartOptions
+									}
+
+								});
+							});
+			*/
+			});
+
+            $(document).ready(function() {
+				$('#nav-view-list').click(function() {
+					$('#myDashboard').removeClass('column-view');
+				    $('#myDashboard').addClass('list-view');
+				    $('#sidebar').removeClass('collapse');
+				    $('#sidebar').addClass('expand');
+				    $('#content').removeClass('full-width');
+				    $('#content').addClass('default-width');
+				    $(this).hide();
+				    $('#nav-view-column').show();
+				});
+
+				$('#nav-view-column').click(function() {
+					$('#myDashboard').removeClass('list-view');
+				    $('#myDashboard').addClass('column-view');
+				    $('#sidebar').removeClass('expand');
+				    $('#sidebar').addClass('collapse');
+				    $('#content').removeClass('default-width');
+				    $('#content').addClass('full-width');
+				    $(this).hide();
+				    $('#nav-view-list').removeClass('collapse');
+				    $('#nav-view-list').show();
+				});
+            });
+
+		</script>
+	</head>
+
+	<body>
+
+<section id="sidebar"> 
+ <div class="logo">
+        <img src="media/logo.png" alt="logo-img" alt="logo image">
+    </div>
+  <div id="sidebar-nav">   
+    <ul>
+      <li class="active"><a href="#"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+      <li><a href="#piechartmap"><i class="fa fa-map-marker"></i> Map</a></li>
+      <li><a href="report/index.html#kpi"><i class="fa fa-line-chart"></i> KPI Analysis</a></li>
+      <li><a href="report/index.html#cost"><i class="fa fa-usd"></i> Cost Report</a></li>
+      <li><a href="#"><i class="fa fa-pencil-square-o"></i> Note</a></li>
+      <li><a href="#"><i class="fa fa-sitemap"></i> Import Oracle DB</a></li>
+      <li><a href="#"><i class="fa fa-users"></i> Employees</a></li>
+    </ul>
+  </div>
+</section>
+<section id="content">
+  <div id="header">
+    <div class="header-nav">
+     
+      <div class="nav">
+        <ul>
+          <li class="nav-settings">
+            <div class="font-icon"><i class="fa fa-tasks"></i></div>
+          </li>
+          <li class="nav-view" id="nav-view-column">
+            <div class="font-icon" title="Hide sidebar"><i class="fa fa-dedent"></i></div>
+          </li>
+          <li class="nav-view collapse" id="nav-view-list">
+            <div class="font-icon" title="Show sidebar"><i class="fa fa-indent"></i></div>
+          </li>
+          <li class="nav-refresh">
+            <div class="font-icon"><i class="fa fa-repeat"></i></div>
+          </li>
+          <li class="nav-profile">
+            <div class="nav-profile-image">
+              <img src="media/sample-profile.jpg" alt="profile-img" alt="profile image">
+              <div class="nav-profile-name">Ke Yang<i class="fa fa-caret-down"></i></div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="content-header">
+      <h1>Dashboard</h1>
+      <p>This is a demo dashboard with current excel data for internal review only</p>
+    </div>
+		<ul id="myDashboard">
+			
+		</ul>
+  </div>
+</section>
+
+	<div id="mapWidgets"></div>
+	<div id="googlemapWidgets"><iframe src="https://www.easymapmaker.com/map/854915b88d6cfbd0764efb2d59b93c42" name="sbec" scrolling="no" frameborder="no" align="center" height = "600px" width = "800px"></iframe></div>
+		
+
+<script>
+//Plotly.d3.csv('js/mechanical-equipment-pricing.csv', function(err, rows){
+  Plotly.d3.csv('https://raw.githubusercontent.com/bcdunbar/datasets/master/meteorites_subset.csv', function(err, rows){
+  var classArray = unpack(rows, 'class');
+  var classes = [...new Set(classArray)];
+
+  function unpack(rows, key) {
+    return rows.map(function(row) { return row[key]; });
+  }
+
+  var data = classes.map(function(classes) {
+    var rowsFiltered = rows.filter(function(row) {
+        return (row.class === classes);
+    });
+    return {
+       type: 'scattermapbox',
+       name: classes,
+       //need latitude and longitude data in the csv
+       lat: unpack(rowsFiltered, 'reclat'),
+       lon: unpack(rowsFiltered, 'reclong')
+    };
+  });
+  
+  var layout = {
+	 title: 'Hover over to see more functions',
+	 font: {
+		 color: 'white'
+	 },
+    dragmode: 'zoom', 
+    mapbox: {
+      center: {
+        lat: 38.03697222, 
+        lon: -90.70916722
+      }, 
+      domain: {
+        x: [0, 1], 
+        y: [0, 1]
+      }, 
+      style: 'dark', 
+      zoom: 1
+    }, 
+    margin: {
+      r: 20, 
+      t: 40, 
+      b: 20, 
+      l: 20, 
+      pad: 0
+    }, 
+    paper_bgcolor: '#191A1A', 
+    plot_bgcolor: '#191A1A', 
+    showlegend: true,
+	 annotations: [{
+		 x: 0,
+       y: 0,
+       xref: 'paper',
+       yref: 'paper',
+		 text: 'Source: <a href="#" style="color: rgb(255,255,255)">Mechanical Equipment Pricing.csv</a>',
+		 showarrow: false
+	 }]
+  };
+  
+  Plotly.setPlotConfig({
+    mapboxAccessToken: 'pk.eyJ1IjoieWFuZ2tlY295IiwiYSI6ImNqN3M3YnRucjMwbzUycW82eXJ4ejQ0cTIifQ.PiRPOi7x9j1n724YGPeR5A'
+  });
+  
+  Plotly.plot('mapWidgets', data, layout);
+});
+
+</script>
+
+
+	</body>
+</html>
